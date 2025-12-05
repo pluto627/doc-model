@@ -1,0 +1,44 @@
+# 医疗VLM LoRA微调配置 - 2000步精度优化版
+# 优先级: 1.精度(50%) 2.人情味(35%) 3.图像(15%)
+
+model: "/Users/plutoguo/.lmstudio/models/lmstudio-community/Qwen3-VL-30B-Medical-Finetuned"
+data: "/Users/plutoguo/Desktop/training/data_mlx"
+fine_tune_type: "lora"
+
+# LoRA参数配置 - 增强版
+lora_parameters:
+  rank: 128           # 提升到128
+  alpha: 256          # alpha = 2 * rank
+  scale: 2.0
+  dropout: 0.08       # 降低dropout
+  keys:
+    - "self_attn.q_proj"
+    - "self_attn.k_proj"
+    - "self_attn.v_proj"
+    - "self_attn.o_proj"
+    - "mlp.gate_proj"
+    - "mlp.up_proj"
+    - "mlp.down_proj"
+
+# 训练参数 - 2000步
+train: true
+iters: 2000
+learning_rate: 5e-6     # 降低学习率（二次训练）
+batch_size: 2
+steps_per_report: 20
+steps_per_eval: 100
+val_batches: 50
+save_every: 200
+max_seq_length: 2048
+
+# 优化器
+optimizer: "adamw"
+weight_decay: 0.02
+
+# 输出路径
+adapter_path: "/Users/plutoguo/Desktop/training/adapters_v2"
+
+# 其他设置
+seed: 42
+grad_checkpoint: true
+
