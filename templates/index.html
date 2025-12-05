@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏥 医疗图像分析助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .upload-section {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-upload-wrapper:hover {
+            border-color: #764ba2;
+            background: #f0f1ff;
+            transform: translateY(-2px);
+        }
+
+        .file-upload-wrapper.drag-over {
+            border-color: #764ba2;
+            background: #e8e9ff;
+            transform: scale(1.02);
+        }
+
+        #imageInput {
+            display: none;
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .upload-text {
+            color: #666;
+            font-size: 1.05em;
+        }
+
+        .upload-hint {
+            color: #999;
+            font-size: 0.9em;
+            margin-top: 8px;
+        }
+
+        .image-preview {
+            margin-top: 20px;
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.4s ease-in;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .image-preview .remove-btn {
+            margin-top: 12px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+        }
+
+        .image-preview .remove-btn:hover {
+            background: #ff3838;
+            transform: scale(1.05);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1em;
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.15em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+            animation: fadeIn 0.4s ease-in;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        .result-section {
+            margin-top: 30px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8e9ff 100%);
+            border-radius: 12px;
+            padding: 30px;
+            border-left: 5px solid #667eea;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .result-header-icon {
+            margin-right: 10px;
+            font-size: 1.4em;
+        }
+
+        .result-content {
+            color: #444;
+            line-height: 1.8;
+            font-size: 1.05em;
+            white-space: pre-wrap;
+        }
+
+        .result-meta {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        .error-message {
+            background: #fff5f5;
+            border: 2px solid #fc8181;
+            border-radius: 12px;
+            padding: 20px;
+            color: #c53030;
+            margin-top: 20px;
+            display: none;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.9;
+            font-size: 0.95em;
+        }
+
+        .info-box {
+            background: #fff9e6;
+            border-left: 4px solid #ffa500;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .info-box-title {
+            font-weight: 600;
+            color: #ff8c00;
+            margin-bottom: 8px;
+        }
+
+        .info-box-content {
+            color: #666;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .main-card {
+                padding: 25px;
+            }
+
+            .file-upload-wrapper {
+                padding: 30px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 医疗图像分析助手</h1>
+            <p>上传医疗图像和描述，获得专业的AI分析建议</p>
+        </div>
+
+        <div class="main-card">
+            <div class="info-box">
+                <div class="info-box-title">⚠️ 重要提示</div>
+                <div class="info-box-content">
+                    本系统提供的分析仅供参考，不能替代专业医生的诊断。如有健康问题，请及时就医。
+                </div>
+            </div>
+
+            <form id="analysisForm">
+                <div class="upload-section">
+                    <div class="form-group">
+                        <label>📸 上传医疗图像（可选）</label>
+                        <div class="file-upload-wrapper" id="fileUploadWrapper">
+                            <input type="file" id="imageInput" name="image" accept="image/*">
+                            <div class="upload-icon">📁</div>
+                            <div class="upload-text">点击或拖拽图像到此处上传</div>
+                            <div class="upload-hint">支持 JPG, PNG, GIF 等格式，最大 16MB</div>
+                        </div>
+                        <div class="image-preview" id="imagePreview">
+                            <img id="previewImg" src="" alt="预览">
+                            <br>
+                            <button type="button" class="remove-btn" id="removeImageBtn">移除图像</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>💬 描述您的问题或症状</label>
+                        <textarea 
+                            id="questionInput" 
+                            name="question" 
+                            placeholder="请详细描述您的症状、问题或想要咨询的内容...&#10;&#10;例如：&#10;- 这是我的血压报告，数值是150/95，请帮我分析一下&#10;- 上传的是胸部X光片，想了解是否有异常&#10;- 最近总是头痛，持续了一周了&#10;- 体检报告显示血糖偏高，应该注意什么"
+                            required
+                        ></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    🔍 开始分析
+                </button>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div>正在分析中，请稍候...</div>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+
+            <div class="result-section" id="resultSection">
+                <div class="result-card">
+                    <div class="result-header">
+                        <span class="result-header-icon">🤖</span>
+                        <span>AI分析结果</span>
+                    </div>
+                    <div class="result-content" id="resultContent"></div>
+                    <div class="result-meta" id="resultMeta"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🔒 您的隐私受到保护 | 💙 关爱健康，从科学了解开始</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                本服务在局域网内运行，数据不会上传到外部服务器
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('analysisForm');
+        const imageInput = document.getElementById('imageInput');
+        const fileUploadWrapper = document.getElementById('fileUploadWrapper');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        const removeImageBtn = document.getElementById('removeImageBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+        const resultSection = document.getElementById('resultSection');
+        const resultContent = document.getElementById('resultContent');
+        const resultMeta = document.getElementById('resultMeta');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // 文件上传区域点击事件
+        fileUploadWrapper.addEventListener('click', () => {
+            imageInput.click();
+        });
+
+        // 拖拽上传
+        fileUploadWrapper.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadWrapper.classList.add('drag-over');
+        });
+
+        fileUploadWrapper.addEventListener('dragleave', () => {
+            fileUploadWrapper.classList.remove('drag-over');
+        });
+
+        fileUploadWrapper.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadWrapper.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                imageInput.files = files;
+                handleImageSelect();
+            }
+        });
+
+        // 图像选择
+        imageInput.addEventListener('change', handleImageSelect);
+
+        function handleImageSelect() {
+            const file = imageInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImg.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                    fileUploadWrapper.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 移除图像
+        removeImageBtn.addEventListener('click', () => {
+            imageInput.value = '';
+            imagePreview.style.display = 'none';
+            fileUploadWrapper.style.display = 'block';
+        });
+
+        // 表单提交
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const questionInput = document.getElementById('questionInput');
+            const question = questionInput.value.trim();
+
+            if (!question) {
+                showError('请输入您的问题或描述');
+                return;
+            }
+
+            // 隐藏之前的结果和错误
+            resultSection.style.display = 'none';
+            errorMessage.style.display = 'none';
+
+            // 显示加载状态
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+
+            try {
+                const formData = new FormData();
+                formData.append('question', question);
+
+                if (imageInput.files[0]) {
+                    formData.append('image', imageInput.files[0]);
+                }
+
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // 显示结果
+                    resultContent.textContent = data.response;
+                    
+                    // 显示元数据
+                    let metaText = `分析时间: ${new Date(data.timestamp).toLocaleString('zh-CN')}`;
+                    if (data.image_info) {
+                        metaText += ` | 图像: ${data.image_info.width}x${data.image_info.height} ${data.image_info.format}`;
+                    }
+                    resultMeta.textContent = metaText;
+                    
+                    resultSection.style.display = 'block';
+
+                    // 滚动到结果
+                    setTimeout(() => {
+                        resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }, 100);
+                } else {
+                    showError(data.error || '分析失败，请重试');
+                }
+            } catch (error) {
+                console.error('错误:', error);
+                showError('网络错误，请检查连接后重试');
+            } finally {
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        });
+
+        function showError(message) {
+            errorMessage.textContent = '❌ ' + message;
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        // 页面加载时检查服务器状态
+        async function checkServerHealth() {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                console.log('服务器状态:', data);
+            } catch (error) {
+                console.error('无法连接到服务器:', error);
+            }
+        }
+
+        checkServerHealth();
+    </script>
+</body>
+</html>
+
