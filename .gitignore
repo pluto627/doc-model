@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# Data
+data/raw/
+data/processed/images/
+uploads/
+*.jpg
+*.jpeg
+*.png
+*.gif
+
+# Models and checkpoints
+checkpoints/
+finetuned_model/
+*.safetensors
+*.gguf
+*.bin
+
+# Logs
+logs/
+*.log
+server.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large files
+adapters/
+*.pth
+*.pt
+
+# Keep structure files
+!data/processed/train.jsonl
+!data/processed/val.jsonl
+!data/processed/*.json
+
