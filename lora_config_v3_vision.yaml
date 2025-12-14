@@ -1,0 +1,60 @@
+# V3 Vision LoRA训练配置 - 带视觉权重
+model: "/Volumes/Pluto/Code/Model/lmstudio-models/local/XunDoc-30B-V3-Precision-Vision"
+data: "data_mlx"
+train: true
+test: true
+
+# 训练参数 - 1000步视觉对齐
+iters: 1000
+batch_size: 2
+learning_rate: 3.0e-6
+optimizer: "adamw"
+grad_accumulation_steps: 4
+
+# LoRA配置
+fine_tune_type: "lora"
+num_layers: 16
+lora_rank: 128
+lora_alpha: 256
+lora_dropout: 0.05
+lora_parameters:
+  rank: 128
+  alpha: 256
+  dropout: 0.05
+  target_modules: 
+    # 语言模型模块
+    - "q_proj"
+    - "v_proj" 
+    - "k_proj"
+    - "o_proj"
+    - "down_proj"
+    - "up_proj"
+    - "gate_proj"
+    # 视觉投影层模块
+    - "vision_tower.merger.linear_fc1"
+    - "vision_tower.merger.linear_fc2"
+
+# 视觉配置
+vision:
+  freeze_vision_tower: true  # 冻结视觉编码器
+  train_projector: true       # 训练投影层
+  image_size: 224
+  patch_size: 16
+
+# 保存和评估
+adapter_path: "adapters_v3_vision"
+save_every: 200
+steps_per_report: 20
+steps_per_eval: 100
+val_batches: 25
+test_batches: 50
+
+# 序列长度
+max_seq_length: 2048
+
+# 其他
+seed: 42
+grad_checkpoint: false
+mask_prompt: false
+
+

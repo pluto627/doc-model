@@ -90,18 +90,52 @@ def generate_response(question: str, image_path: Optional[str] = None) -> str:
         try:
             print(f"🤖 使用AI模型生成回复...")
             
+            # 准备图像（如果有）
+            images = None
+            if image_path:
+                try:
+                    with Image.open(image_path) as img:
+                        images = [img.convert("RGB")]
+                except Exception as e:
+                    print(f"⚠️ 图像加载失败，改为纯文本模式: {e}")
+                    images = None
+            
             # 构建提示词
             if image_path:
-                prompt = f"<|im_start|>system\n你是一个专业、有同理心的医疗健康助手。请用温暖、专业的语气回答用户的健康问题。<|im_end|>\n<|im_start|>user\n图片: {image_path}\n问题: {question}<|im_end|>\n<|im_start|>assistant\n"
+                prompt = (
+                    "<|im_start|>system\n"
+                    "你是一个专业、有同理心的医疗健康助手。"
+                    "你可以读取并理解用户上传的医疗影像或报告照片，"
+                    "提取其中的文字（OCR）和关键信息，再结合用户问题给出专业、温暖的建议。"
+                    "<|im_end|>\n"
+                    "<|im_start|>user\n"
+                    "以下是我上传的图片，请先阅读图片内容（包含文字和影像），再回答我的问题：\n"
+                    f"问题: {question}"
+                    "<|im_end|>\n"
+                    "<|im_start|>assistant\n"
+                )
             else:
-                prompt = f"<|im_start|>system\n你是一个专业、有同理心的医疗健康助手。请用温暖、专业的语气回答用户的健康问题。<|im_end|>\n<|im_start|>user\n{question}<|im_end|>\n<|im_start|>assistant\n"
+                prompt = (
+                    "<|im_start|>system\n"
+                    "你是一个专业、有同理心的医疗健康助手。"
+                    "请用温暖、专业的语气回答用户的健康问题。"
+                    "<|im_end|>\n"
+                    "<|im_start|>user\n"
+                    f"{question}"
+                    "<|im_end|>\n"
+                    "<|im_start|>assistant\n"
+                )
             
-            # 生成回复 - 使用简化参数
+            # 生成回复 - V4.2优化参数
             response = generate(
                 model,
                 tokenizer,
                 prompt=prompt,
+                images=images,
                 max_tokens=512,
+                temp=0.7,                    # 增加多样性
+                top_p=0.9,                   # 核采样
+                repetition_penalty=1.1,      # 减少重复
                 verbose=False
             )
             

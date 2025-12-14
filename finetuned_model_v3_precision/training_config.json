@@ -1,0 +1,17 @@
+{
+  "version": "V3",
+  "training_type": "Precision Enhancement",
+  "base_model": "/Users/plutoguo/.lmstudio/models/local/Qwen3-VL-30B-Medical-V2-Fused",
+  "total_steps": 5200,
+  "lora_rank": 128,
+  "lora_alpha": 256,
+  "learning_rate": 3e-06,
+  "precision_weight": 2.0,
+  "empathy_weight": 1.0,
+  "training_date": "2025-12-06 14:42:38",
+  "phases": {
+    "phase1": "精准度核心强化 (0-2000步)",
+    "phase2": "医学知识深化 (2000-4000步)",
+    "phase3": "精度+人情味平衡 (4000-5200步)"
+  }
+}

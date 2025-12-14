@@ -455,3 +455,5 @@ if __name__ == "__main__":
     # 导出数据库
     kb.export_to_json("drug_knowledge_base.json")
 
+
+
